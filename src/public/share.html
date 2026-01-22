@@ -75,7 +75,7 @@
   }
   .attachments-grid { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color); }
   .attachment-link {
-	display: flex; flex-direction: column; justify-content: center; background-color: rgba(247, 250, 252, 0.8); padding: 0.5rem 1rem; border-radius: var(--border-radius-base); color: var(--text-color); text-decoration: none; font-size: 1rem; transition: background-color 0.2; border: 1px solid var(--border-color); margin-bottom: 0.5rem;
+	display: flex; flex-direction: column; justify-content: center; background-color: rgba(247, 250, 252, 0.8); padding: 0.5rem 1rem; border-radius: var(--border-radius-base); color: var(--text-color); text-decoration: none; font-size: 1rem; transition: background-color 0.2s; border: 1px solid var(--border-color); margin-bottom: 0.5rem;
   }
   .attachment-link:hover { background-color: rgba(237, 242, 247, 0.9); }
   .attachment-link .file-name { word-break: break-all; font-weight: 500; }
@@ -88,7 +88,7 @@
 
 <div class="wrapper">
 	<header>
-		<h3><a href='https://google.com' target="_blank">Hello</a></h3>
+		<h3><a href='https://github.com/souvenp/memos-worker' target="_blank">MEMOS</a></h3>
 		<button type='button' id='theme-toggle-btn' class='icon-btn' title='Toggle Theme'></button>
 	</header>
 	<main id="main-content">
@@ -129,9 +129,9 @@
 	}
 	const formatBytes = (b, d = 2) => {
 		if (!b || b === 0) return '0 Bytes';
-		const k = 1024,  = ['B', 'KB', 'MB', 'GB'];
+		const k = 1024, s = ['B', 'KB', 'MB', 'GB'];
 		const i = Math.floor(Math.log(b) / Math.log(k));
-		return parseFloat((b / Math.pow(k, i)).toFixed(d)) + ' ' + [i];
+		return parseFloat((b / Math.pow(k, i)).toFixed(d)) + ' ' + s[i];
 	};
 	const textFileExtensions = ['txt', 'js', 'json', 'py', 'css', 'html', 'md', 'sh', 'java', 'c', 'cpp', 'go', 'rb', 'xml', 'log', 'yaml', 'toml', 'yml'];
 
