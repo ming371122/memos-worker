@@ -11,11 +11,25 @@
 </head>
 <style>
   :root {
-	--bg-color: #f4f7f9; --surface-color: #ffffff; --primary-color: #367cff; --text-color: #333; --text-secondary: #667;
-	--border-color: #e2e8f0; --border-radius-base: 6px; --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+	--bg-color: #f4f7f9;
+	--surface-color: #ffffff;
+	--primary-color: #367cff;
+	--text-color: #333;
+	--text-secondary: #667;
+	--border-color: #e2e8f0;
+	--border-radius-base: 6px;
+	--font-family: -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+	--accent-color: #38b2ac;
+	--accent-hover: #2c918b;
+	--danger-color: #f56565;
   }
   html[data-theme='dark'] {
-	--bg-color: #0a1222; --surface-color: #151f31; --text-color: #e2e8f0; --text-secondary: #a0aec0; --border-color: #4a5568;
+	--bg-color: #0a1222;
+	--surface-color: #151f31;
+	--text-color: #e2e8f0;
+	--text-secondary: #a0aec0;
+	--border-color: #4a5568;
+	--danger-color: #f56565;
   }
 
   body {
@@ -24,46 +38,72 @@
 	margin: 0;
 	padding: 2rem 1rem;
 	line-height: 1.6;
-	background-size: cover;
-	background-position: center;
-	background-attachment: fixed;
+	background-color: var(--bg-color);
 	min-height: 100vh;
 	box-sizing: border-box;
   }
-  html[data-theme='dark'] { background-image: url(/bg.jpg);  }
-  .wrapper { max-width: 732px; margin: 0 auto; }
-  header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; color: var(--text-color); }
-  header h3 { margin: 0; font-size: 1.5rem; }
+
+  .wrapper {
+	max-width: 732px;
+	margin: 0 auto;
+  }
+
+  header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 2rem;
+	color: var(--text-color);
+  }
+
+  header h3 {
+	margin: 0;
+	font-size: 1.5rem;
+  }
+
   header h3 a {
 	color: inherit;
 	text-decoration: none;
   }
-  .icon-btn { background: none; border: none; padding: 0; cursor: pointer; width: 36px; height: 36px; border-radius: 50%; color: var(--text-secondary); display: flex; align-items: center; justify-content: center; transition: all .2s ease; }
-  .icon-btn:hover { background-color: rgba(127, 127, 127, 0.2); color: var(--text-color); }
+
+  .icon-btn {
+	background: none;
+	border: none;
+	padding: 0;
+	cursor: pointer;
+	width: 36px;
+	height: 36px;
+	border-radius: 50%;
+	color: var(--text-secondary);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all .2s ease;
+  }
+
+  .icon-btn:hover {
+	background-color: rgba(127, 127, 127, 0.2);
+	color: var(--text-color);
+  }
+
+  /* Note styles */
+  .note {
+	background: var(--surface-color);
+	border: 1px solid var(--border-color);
+	border-radius: .5rem;
+	padding: .5rem 1rem;
+	margin-bottom: .5rem;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+	transition: transform 0.2s ease, box-shadow 0.2s ease;
+	box-sizing: border-box;
+  }
+
+  .note:hover {
+	box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  }
 
   .notes-list {
-	margin-top: 2rem;
-  }
-
-  .note-item {
-	background: rgba(255, 255, 255, 0.7);
-	backdrop-filter: blur(8px);
-	-webkit-backdrop-filter: blur(8px);
-	border: 1px solid rgba(255, 255, 255, 0.2);
-	border-radius: var(--border-radius-base);
-	padding: 1rem 1.5rem;
-	box-shadow: 0 4px 20px rgba(0,0,0,.1);
-	margin-bottom: 1rem;
-	transition: transform 0.2s ease, box-shadow 0.2s ease;
-	cursor: pointer;
-  }
-  .note-item:hover {
-	transform: translateY(-2px);
-	box-shadow: 0 6px 25px rgba(0,0,0,.15);
-  }
-  html[data-theme='dark'] .note-item {
-	background: rgba(21, 31, 49, 0.75);
-	border-color: rgba(255, 255, 255, 0.1);
+	margin-top: 1rem;
   }
 
   .note-header {
@@ -71,55 +111,138 @@
 	justify-content: space-between;
 	align-items: center;
 	margin-bottom: .5rem;
+	padding-bottom: 0rem;
   }
+
   .note-meta {
 	font-size: 0.8rem;
 	color: var(--text-secondary);
   }
+
   .note-content {
 	word-wrap: break-word;
 	font-size: 1rem;
 	margin-bottom: 0.5rem;
   }
+
   .note-content a {
 	color: var(--primary-color);
+	text-decoration: none;
+	border-bottom: 1px solid transparent;
+	transition: border-color 0.2s;
   }
+
+  .note-content a:hover {
+	border-bottom-color: var(--primary-color);
+  }
+
   .note-content pre {
 	padding: 0.5rem;
 	border-radius: 6px;
 	overflow-x: auto;
 	background-color: rgba(0,0,0,0.05);
 	font-size: 0.8rem;
-	max-height: 100px;
 	margin: 0.5rem 0;
   }
+
   html[data-theme='dark'] .note-content pre {
 	background-color: rgba(0,0,0,0.2);
   }
+
   .note-content pre code {
 	background: none;
 	padding: 0;
   }
+
   .note-content table {
 	width: 100%;
 	border-collapse: collapse;
 	margin: 0.5em 0;
 	border: 1px solid var(--border-color);
-	font-size: 0.8rem;
   }
+
   .note-content th, .note-content td {
 	padding: 5px 8px;
 	border: 1px solid var(--border-color);
 	text-align: left;
   }
+
   .note-content thead th {
 	background-color: rgba(0,0,0,0.05);
   }
+
+  /* Attachments styles */
+  .attachments-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+	gap: 1rem;
+	margin-top: 0.5rem;
+	padding: 0.75rem;
+  }
+
+  .attachment-img {
+	position: relative;
+  }
+
+  .attachment-img img {
+	max-width: 100%;
+	display: block;
+	transition: transform 0.3s ease;
+	border-radius: var(--border-radius-base);
+  }
+
+  .attachment-link {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	background-color: #f7fafc;
+	padding: 0.25rem 0.75rem;
+	border-radius: var(--border-radius-base);
+	color: var(--text-color);
+	text-decoration: none;
+	font-size: 1rem;
+	transition: background-color 0.2s;
+	border: 1px solid var(--border-color);
+  }
+
+  .attachment-link:hover {
+	background-color: #edf2f7;
+  }
+
+  .attachment-link .file-name {
+	word-break: break-all;
+	font-weight: 500;
+  }
+
+  .attachment-link .file-size {
+	color: var(--text-secondary);
+	font-size: 0.8rem;
+  }
+
+  html[data-theme='dark'] .attachment-link {
+	background-color: rgba(74, 85, 104, 0.5);
+	color: #e2e8f0;
+	border-color: #718096;
+  }
+
+  html[data-theme='dark'] .attachment-link:hover {
+	background-color: rgba(45, 55, 72, 0.7);
+  }
+
+  /* Share indicator styles */
+  .note-share-indicator {
+	font-size: 0.75rem;
+	color: var(--primary-color);
+	font-weight: 500;
+  }
+
+  /* Loader styles */
   #loader {
 	text-align: center;
 	color: var(--text-secondary);
 	padding: 3rem 0;
   }
+
   .spinner {
 	width: 40px;
 	height: 40px;
@@ -129,82 +252,30 @@
 	animation: spin 1s linear infinite;
 	margin: 0 auto;
   }
+
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  .note-content img,
-  .note-content video {
-	max-width: 100%;
-	height: auto;
-	display: block;
-	margin-left: auto;
-	margin-right: auto;
-	margin-top: 0.5em;
-	margin-bottom: 0.5em;
-	border-radius: var(--border-radius-base);
-	max-height: 150px;
-	object-fit: contain;
-  }
-  .attachments-grid {
-	margin-top: 0.5rem;
-	padding-top: 0.5rem;
-	border-top: 1px solid var(--border-color);
-	font-size: 0.8rem;
-  }
-  .attachment-link {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	background-color: rgba(247, 250, 252, 0.8);
-	padding: 0.3rem 0.8rem;
-	border-radius: var(--border-radius-base);
-	color: var(--text-color);
-	text-decoration: none;
-	font-size: 0.8rem;
-	transition: background-color 0.2s;
-	border: 1px solid var(--border-color);
-	margin-bottom: 0.3rem;
-  }
-  .attachment-link:hover {
-	background-color: rgba(237, 242, 247, 0.9);
-  }
-  .attachment-link .file-name {
-	word-break: break-all;
-	font-weight: 500;
-  }
-  .attachment-link .file-size {
-	color: var(--text-secondary);
-	font-size: 0.7rem;
-  }
-  html[data-theme='dark'] .attachment-link {
-	background-color: rgba(74, 85, 104, 0.5);
-	color: #e2e8f0;
-	border-color: #718096;
-  }
-  html[data-theme='dark'] .attachment-link:hover {
-	background-color: rgba(45, 55, 72, 0.7);
-  }
-
-  .note-share-indicator {
-	font-size: 0.75rem;
-	color: var(--primary-color);
-	font-weight: 500;
-  }
-
+  /* Empty state styles */
   .empty-state {
 	text-align: center;
 	padding: 4rem 0;
 	color: var(--text-secondary);
   }
 
-  .view-all-link {
-	display: inline-block;
-	margin-top: 1rem;
-	color: var(--primary-color);
-	text-decoration: none;
-	font-weight: 500;
+  /* Debug info styles */
+  pre {
+	background-color: #f0f0f0;
+	padding: 1rem;
+	border-radius: 6px;
+	overflow: auto;
+	max-height: 300px;
+	text-align: left;
+	font-size: 0.8rem;
   }
-  .view-all-link:hover {
-	text-decoration: underline;
+
+  html[data-theme='dark'] pre {
+	background-color: rgba(0, 0, 0, 0.2);
+	color: var(--text-color);
   }
 </style>
 <body>
@@ -297,68 +368,75 @@
 	});
 
 	function renderNote(note) {
-		const noteElement = document.createElement('div');
-		noteElement.className = 'note-item';
-		noteElement.dataset.publicId = note.shareInfo.publicId;
+	const noteElement = document.createElement('div');
+	noteElement.className = 'note';
+	noteElement.dataset.publicId = note.shareInfo.publicId;
 
-		const time = formatTimestamp(note.updatedAt);
+	const time = formatTimestamp(note.updatedAt);
 
-		// 添加分享剩余时间显示
-		let shareInfoHtml = '';
-		if (note.shareInfo && note.shareInfo.isShared) {
-			if (note.shareInfo.remainingSeconds > 0) {
-				const remainingTime = formatRemainingTime(note.shareInfo.remainingSeconds);
-				shareInfoHtml = ` <span class="note-share-indicator" title="Shared link expires in ${remainingTime}">${remainingTime}</span>`;
-			} else {
-				shareInfoHtml = ` <span class="note-share-indicator" title="Shared link never expires">Shared</span>`;
-			}
+	// 添加分享剩余时间显示
+	let shareInfoHtml = '';
+	if (note.shareInfo && note.shareInfo.isShared) {
+		if (note.shareInfo.remainingSeconds > 0) {
+			const remainingTime = formatRemainingTime(note.shareInfo.remainingSeconds);
+			shareInfoHtml = ` ·&nbsp;<span class="note-share-indicator" title="Shared link expires in ${remainingTime}">${remainingTime}</span>`;
+		} else {
+			shareInfoHtml = ` ·&nbsp;<span class="note-share-indicator" title="Shared link never expires">Shared</span>`;
 		}
-
-		let attachmentsHTML = '';
-		const files = note.files || [];
-		if (files.length > 0) {
-			attachmentsHTML += '<div class="attachments-grid">';
-			files.slice(0, 2).forEach(file => {
-				// 后端现在会返回一个完整的、可直接使用的 public_url
-				if (file.public_url) {
-					attachmentsHTML += `
-						<a href="${file.public_url}" class="attachment-link" download="${file.name}" data-filename="${file.name}">
-							<div class="file-info">
-								<span class="file-name">${file.name}</span>
-								<span class="file-size">${formatBytes(file.size)}</span>
-							</div>
-						</a>
-					`;
-				}
-			});
-			if (files.length > 2) {
-				attachmentsHTML += `<div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.3rem;">+${files.length - 2} more files</div>`;
-			}
-			attachmentsHTML += '</div>';
-		}
-
-		// 限制内容长度，只显示摘要
-		let content = note.content;
-		if (content.length > 300) {
-			content = content.substring(0, 300) + '...';
-		}
-
-		noteElement.innerHTML = `
-			<div class='note-header'>
-				<div class='note-meta'><span title='${new Date(note.updatedAt).toISOString()}'>${time}</span>${shareInfoHtml}</div>
-			</div>
-			<div class='note-content'>${marked.parse(content)}</div>
-			${attachmentsHTML}
-			<div style="font-size: 0.8rem; color: var(--primary-color); margin-top: 0.5rem;">View full note →</div>
-		`;
-
-		// 添加点击事件，跳转到完整的分享页面
-		noteElement.addEventListener('click', () => {
-			window.location.href = `/share/${note.shareInfo.publicId}`;
-		});
-
-		return noteElement;
 	}
+
+	let attachmentsHTML = '';
+	const files = note.files || [];
+	if (files.length > 0) {
+		attachmentsHTML += '<div class="attachments-grid">';
+		files.forEach(file => {
+			// 后端现在会返回一个完整的、可直接使用的 public_url
+			if (file.public_url) {
+				if (file.type?.startsWith('image/')) {
+					// 对于图片，使用图片格式展示
+					attachmentsHTML += `<div class="attachment-img">
+						<img class="note-image-attachment" loading="lazy" src="${file.public_url}" alt="${file.name}" style="cursor: zoom-in;">
+					</div>`;
+				} else {
+					// 对于普通文件，使用文件链接格式展示
+					attachmentsHTML += `<a href="${file.public_url}" class="attachment-link" download="${file.name}">
+						<span class="file-name">${file.name}</span>
+						<span class="file-size">${formatBytes(file.size)}</span>
+					</a>`;
+				}
+			}
+		});
+		attachmentsHTML += '</div>';
+	}
+
+	// 限制内容长度，只显示摘要
+	let content = note.content;
+	if (content.length > 300) {
+		content = content.substring(0, 300) + '...';
+	}
+
+	// 使用与 index.html 相同的 HTML 结构
+	noteElement.innerHTML = `
+		<div class="note-header">
+			<div class="note-meta">
+				<span title="${new Date(note.updatedAt).toISOString()}">${time}</span>
+				${shareInfoHtml}
+			</div>
+			<div class="note-actions view-mode">
+				<!-- 可以添加额外的操作按钮 -->
+			</div>
+		</div>
+		<div class="note-content">${marked.parse(content)}</div>
+		${attachmentsHTML}
+	`;
+
+	// 添加点击事件，跳转到完整的分享页面
+	noteElement.addEventListener('click', () => {
+		window.location.href = `/share/${note.shareInfo.publicId}`;
+	});
+
+	return noteElement;
+}
 
 	async function loadSharedNotes() {
 		try {
