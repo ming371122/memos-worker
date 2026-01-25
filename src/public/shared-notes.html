@@ -14,14 +14,18 @@
 	--bg-color: #f4f7f9;
 	--surface-color: #ffffff;
 	--primary-color: #367cff;
+	--primary-hover: #2a63cc;
 	--text-color: #333;
 	--text-secondary: #667;
 	--border-color: #e2e8f0;
-	--border-radius-base: 6px;
-	--font-family: -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+	--danger-color: #e53e3e;
 	--accent-color: #38b2ac;
 	--accent-hover: #2c918b;
-	--danger-color: #f56565;
+	--border-radius-base: 6px;
+	--font-family: -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+  }
+  button, .btn, .auth-form input, textarea, #note-form, .note, .sidebar-content {
+	border-radius: var(--border-radius-base);
   }
   html[data-theme='dark'] {
 	--bg-color: #0a1222;
@@ -30,6 +34,31 @@
 	--text-secondary: #a0aec0;
 	--border-color: #4a5568;
 	--danger-color: #f56565;
+  }
+  html {
+	scrollbar-width: thin;
+	scrollbar-color: var(--border-color) var(--surface-color);
+  }
+  ::-webkit-scrollbar {
+	width: 8px;
+	height: 8px;
+	background-color: var(--surface-color);
+  }
+  ::-webkit-scrollbar-track {
+	background-color: transparent;
+	border-radius: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+	background-color: var(--border-color);
+	border-radius: 10px;
+	border: 2px solid var(--surface-color);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+	background-color: var(--primary-color);
+	border-color: var(--surface-color);
+  }
+  ::-webkit-scrollbar-thumb:active {
+	background-color: var(--primary-hover);
   }
 
   body {
@@ -44,7 +73,7 @@
   }
 
   .wrapper {
-	max-width: 732px;
+	max-width: 1200px;
 	margin: 0 auto;
   }
 
@@ -120,9 +149,10 @@
   }
 
   .note-content {
+	white-space: pre-wrap;
 	word-wrap: break-word;
 	font-size: 1rem;
-	margin-bottom: 0.5rem;
+	margin-bottom: 1rem;
   }
 
   .note-content a {
@@ -130,6 +160,7 @@
 	text-decoration: none;
 	border-bottom: 1px solid transparent;
 	transition: border-color 0.2s;
+	word-break: break-all;
   }
 
   .note-content a:hover {
@@ -219,14 +250,14 @@
 	font-size: 0.8rem;
   }
 
-  html[data-theme='dark'] .attachment-link {
-	background-color: rgba(74, 85, 104, 0.5);
+  body[data-theme='dark'] .attachment-link {
+	background-color: #4a5568;
 	color: #e2e8f0;
 	border-color: #718096;
   }
 
-  html[data-theme='dark'] .attachment-link:hover {
-	background-color: rgba(45, 55, 72, 0.7);
+  body[data-theme='dark'] .attachment-link:hover {
+	background-color: #2d3748;
   }
 
   /* Share indicator styles */
@@ -290,11 +321,6 @@
 			<div class="spinner"></div>
 		</div>
 	</main>
-	
-	<!-- 调试按钮 -->
-	<div style="margin-top: 2rem; text-align: center;">
-		<button id="debug-btn" style="padding: 0.5rem 1rem; background-color: var(--primary-color); color: white; border: none; border-radius: var(--border-radius-base); cursor: pointer;">Show Debug Info</button>
-	</div>
 </div>
 
 <script>
@@ -320,7 +346,6 @@
 	applyTheme(savedTheme);
 
 	function formatTimestamp(timestamp) {
-		console.log('Formatting timestamp:', timestamp);
 		const date = new Date(timestamp);
 		if (isNaN(date.getTime())) {
 			console.error('Invalid timestamp:', timestamp);
@@ -368,93 +393,85 @@
 	});
 
 	function renderNote(note) {
-	const noteElement = document.createElement('div');
-	noteElement.className = 'note';
-	noteElement.dataset.publicId = note.shareInfo.publicId;
+		const noteElement = document.createElement('div');
+		noteElement.className = 'note';
+		noteElement.dataset.publicId = note.shareInfo.publicId;
 
-	const time = formatTimestamp(note.updatedAt);
+		const time = formatTimestamp(note.updatedAt);
 
-	// 添加分享剩余时间显示
-	let shareInfoHtml = '';
-	if (note.shareInfo && note.shareInfo.isShared) {
-		if (note.shareInfo.remainingSeconds > 0) {
-			const remainingTime = formatRemainingTime(note.shareInfo.remainingSeconds);
-			shareInfoHtml = ` ·&nbsp;<span class="note-share-indicator" title="Shared link expires in ${remainingTime}">${remainingTime}</span>`;
-		} else {
-			shareInfoHtml = ` ·&nbsp;<span class="note-share-indicator" title="Shared link never expires">Shared</span>`;
-		}
-	}
-
-	let attachmentsHTML = '';
-	const files = note.files || [];
-	if (files.length > 0) {
-		attachmentsHTML += '<div class="attachments-grid">';
-		files.forEach(file => {
-			// 后端现在会返回一个完整的、可直接使用的 public_url
-			if (file.public_url) {
-				if (file.type?.startsWith('image/')) {
-					// 对于图片，使用图片格式展示
-					attachmentsHTML += `<div class="attachment-img">
-						<img class="note-image-attachment" loading="lazy" src="${file.public_url}" alt="${file.name}" style="cursor: zoom-in;">
-					</div>`;
-				} else {
-					// 对于普通文件，使用文件链接格式展示
-					attachmentsHTML += `<a href="${file.public_url}" class="attachment-link" download="${file.name}">
-						<span class="file-name">${file.name}</span>
-						<span class="file-size">${formatBytes(file.size)}</span>
-					</a>`;
-				}
+		// 添加分享剩余时间显示
+		let shareInfoHtml = '';
+		if (note.shareInfo && note.shareInfo.isShared) {
+			if (note.shareInfo.remainingSeconds > 0) {
+				const remainingTime = formatRemainingTime(note.shareInfo.remainingSeconds);
+				shareInfoHtml = ` ·&nbsp;<span class="note-share-indicator" title="Shared link expires in ${remainingTime}">${remainingTime}</span>`;
+			} else {
+				shareInfoHtml = ` ·&nbsp;<span class="note-share-indicator" title="Shared link never expires">Shared</span>`;
 			}
+		}
+
+		let attachmentsHTML = '';
+		const files = note.files || [];
+		if (files.length > 0) {
+			attachmentsHTML += '<div class="attachments-grid">';
+			files.forEach(file => {
+				// 后端现在会返回一个完整的、可直接使用的 public_url
+				if (file.public_url) {
+					if (file.type?.startsWith('image/')) {
+						// 对于图片，使用图片格式展示
+						attachmentsHTML += `<div class="attachment-img">
+							<img class="note-image-attachment" loading="lazy" src="${file.public_url}" alt="${file.name}" style="cursor: zoom-in;">
+						</div>`;
+					} else {
+						// 对于普通文件，使用文件链接格式展示
+						attachmentsHTML += `<a href="${file.public_url}" class="attachment-link" download="${file.name}">
+							<span class="file-name">${file.name}</span>
+							<span class="file-size">${formatBytes(file.size)}</span>
+						</a>`;
+					}
+				}
+			});
+			attachmentsHTML += '</div>';
+		}
+
+		// 直接使用完整内容，不做摘要限制，与index.html保持一致
+		const content = note.content;
+
+		// 使用与 index.html 相同的 HTML 结构
+		noteElement.innerHTML = `
+			<div class="note-header">
+				<div class="note-meta">
+					<span title="${new Date(note.updatedAt).toISOString()}">${time}</span>
+					${shareInfoHtml}
+				</div>
+				<div class="note-actions view-mode">
+					<!-- 可以添加额外的操作按钮 -->
+				</div>
+			</div>
+			<div class="note-content">${marked.parse(content)}</div>
+			${attachmentsHTML}
+		`;
+
+		// 添加点击事件，跳转到完整的分享页面
+		noteElement.addEventListener('click', () => {
+			window.location.href = `/share/${note.shareInfo.publicId}`;
 		});
-		attachmentsHTML += '</div>';
+
+		return noteElement;
 	}
-
-	// 限制内容长度，只显示摘要
-	let content = note.content;
-	if (content.length > 300) {
-		content = content.substring(0, 300) + '...';
-	}
-
-	// 使用与 index.html 相同的 HTML 结构
-	noteElement.innerHTML = `
-		<div class="note-header">
-			<div class="note-meta">
-				<span title="${new Date(note.updatedAt).toISOString()}">${time}</span>
-				${shareInfoHtml}
-			</div>
-			<div class="note-actions view-mode">
-				<!-- 可以添加额外的操作按钮 -->
-			</div>
-		</div>
-		<div class="note-content">${marked.parse(content)}</div>
-		${attachmentsHTML}
-	`;
-
-	// 添加点击事件，跳转到完整的分享页面
-	noteElement.addEventListener('click', () => {
-		window.location.href = `/share/${note.shareInfo.publicId}`;
-	});
-
-	return noteElement;
-}
 
 	async function loadSharedNotes() {
 		try {
 			const apiUrl = '/api/public/shared-notes';
-			console.log('Fetching shared notes from:', apiUrl);
 			const response = await fetch(apiUrl);
-			console.log('API Response Status:', response.status, response.statusText);
-			
+
 			if (!response.ok) {
 				const err = await response.json();
 				throw new Error(err.error || `Failed to load shared notes (status: ${response.status})`);
 			}
-			
+
 			const data = await response.json();
-			console.log('API Response Data:', data);
 			const notes = data.notes || [];
-			console.log('Parsed Notes:', notes);
-			console.log('Notes count:', notes.length);
 
 			loader.style.display = 'none';
 
@@ -468,48 +485,22 @@
 
 			const notesList = document.createElement('div');
 			notesList.className = 'notes-list';
-			console.log('Creating note elements...');
 
-			notes.forEach((note, index) => {
-				console.log(`Rendering note ${index + 1}:`, note.content.substring(0, 50));
+			notes.forEach((note) => {
 				const noteElement = renderNote(note);
 				notesList.appendChild(noteElement);
 			});
 
-			console.log('Appending notes to main content...');
 			mainContent.appendChild(notesList);
-			console.log('Notes rendered successfully!');
 
 		} catch (error) {
 			console.error('Load Shared Notes Error:', error);
-			loader.innerHTML = `<p style="color: #e53e3e;">Error: ${error.message}</p><p style="font-size: 0.8rem; color: var(--text-secondary);">Please check the console for more details.</p>`;
+			loader.innerHTML = `<p style="color: var(--danger-color);">Error: ${error.message}</p>`;
 		}
 	}
 
+	// 页面加载完成后自动加载内容
 	loadSharedNotes();
-	
-	// 调试按钮点击事件
-	const debugBtn = document.getElementById('debug-btn');
-	if (debugBtn) {
-		debugBtn.addEventListener('click', async () => {
-			try {
-				const response = await fetch('/api/public/shared-notes');
-				const data = await response.json();
-				const debugInfo = document.createElement('div');
-				debugInfo.innerHTML = `
-					<pre style="background-color: #f0f0f0; padding: 1rem; border-radius: 6px; overflow: auto; max-height: 300px; text-align: left;">
-						${JSON.stringify(data, null, 2)}
-					</pre>
-				`;
-				mainContent.appendChild(debugInfo);
-			} catch (error) {
-				console.error('Debug Error:', error);
-				const errorInfo = document.createElement('div');
-				errorInfo.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
-				mainContent.appendChild(errorInfo);
-			}
-		});
-	}
 </script>
 
 </body>
