@@ -1905,10 +1905,10 @@ async function handleShareNoteRequest(noteId, request, env) {
 			}
 			// 如果 expirationTtl <= 0，则不设置 options.expirationTtl，KV 会将其视为永不过期
 
-			// 使用新 TTL 重新写入两个键
+			// 使用新 TTL 重新写入 public_memo 键，note_share 键保持永不过期
 			await Promise.all([
 				env.NOTES_KV.put(publicMemoKey, memoData, options),
-				env.NOTES_KV.put(noteShareKey, body.publicId, options)
+				env.NOTES_KV.put(noteShareKey, body.publicId) // 不设置过期时间，保持永不过期
 			]);
 
 			// 为笔记添加 shared 标签
@@ -1936,9 +1936,9 @@ async function handleShareNoteRequest(noteId, request, env) {
 				}
 
 				await Promise.all([
-					env.NOTES_KV.put(`public_memo:${publicId}`, JSON.stringify({ noteId: parseInt(noteId, 10) }), options),
-					env.NOTES_KV.put(`note_share:${noteId}`, publicId, options)
-				]);
+				env.NOTES_KV.put(`public_memo:${publicId}`, JSON.stringify({ noteId: parseInt(noteId, 10) }), options),
+				env.NOTES_KV.put(`note_share:${noteId}`, publicId) // 不设置过期时间，保持永不过期
+			]);
 			}
 
 			// 为笔记添加 shared 标签
