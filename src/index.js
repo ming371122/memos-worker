@@ -1777,6 +1777,15 @@ async function handleShareNoteRequest(noteId, request, env) {
 				env.NOTES_KV.put(noteShareKey, body.publicId, options)
 			]);
 
+			// 为笔记添加 shared 标签
+			const db = env.DB;
+			await db.prepare("INSERT OR IGNORE INTO tags (name) VALUES (?)").bind('shared').run();
+			const tag = await db.prepare("SELECT id FROM tags WHERE name = ?").bind('shared').first();
+			if (tag) {
+				await db.prepare("INSERT OR IGNORE INTO note_tags (note_id, tag_id) VALUES (?, ?)")
+					.bind(parseInt(noteId, 10), tag.id).run();
+			}
+
 			return jsonResponse({ success: true, message: 'Expiration updated.' });
 
 		} else {
@@ -1796,6 +1805,15 @@ async function handleShareNoteRequest(noteId, request, env) {
 					env.NOTES_KV.put(`public_memo:${publicId}`, JSON.stringify({ noteId: parseInt(noteId, 10) }), options),
 					env.NOTES_KV.put(`note_share:${noteId}`, publicId, options)
 				]);
+			}
+
+			// 为笔记添加 shared 标签
+			const db = env.DB;
+			await db.prepare("INSERT OR IGNORE INTO tags (name) VALUES (?)").bind('shared').run();
+			const tag = await db.prepare("SELECT id FROM tags WHERE name = ?").bind('shared').first();
+			if (tag) {
+				await db.prepare("INSERT OR IGNORE INTO note_tags (note_id, tag_id) VALUES (?, ?)")
+					.bind(parseInt(noteId, 10), tag.id).run();
 			}
 
 			const { protocol, host } = new URL(request.url);
@@ -1823,6 +1841,15 @@ async function handleUnshareNoteRequest(noteId, env) {
 				env.NOTES_KV.delete(`note_share:${noteId}`)
 			]);
 		}
+
+		// 移除笔记的 shared 标签
+		const db = env.DB;
+		const tag = await db.prepare("SELECT id FROM tags WHERE name = ?").bind('shared').first();
+		if (tag) {
+			await db.prepare("DELETE FROM note_tags WHERE note_id = ? AND tag_id = ?")
+				.bind(parseInt(noteId, 10), tag.id).run();
+		}
+
 		return jsonResponse({ success: true, message: 'Sharing has been revoked.' });
 	} catch (e) {
 		console.error(`Unshare Note Error (noteId: ${noteId}):`, e.message);
