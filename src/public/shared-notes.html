@@ -3,8 +3,7 @@
 <head>
 	<meta charset='UTF-8'>
 	<meta name='viewport' content='width=device-width, initial-scale=1.0'>
-	<script src='https://cdnjs.cloudflare.com/ajax/libs/marked/15.0.12/marked.min.js'></script>
-	<title>Shared Notes</title>
+	<title>Shared Notes Links</title>
 	<link id='hljs-light-theme' rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css'>
 	<link id='hljs-dark-theme' rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css' disabled>
 	<link rel='icon' type='image/png' href='/favicon.png'>
@@ -115,153 +114,57 @@
 	color: var(--text-color);
   }
 
-  /* Note styles */
-  .note {
+  /* Shared links list styles */
+  .shared-links-list {
+	margin-top: 1rem;
+  }
+
+  .shared-link-item {
 	background: var(--surface-color);
 	border: 1px solid var(--border-color);
 	border-radius: .5rem;
-	padding: .5rem 1rem;
+	padding: 1rem;
 	margin-bottom: .5rem;
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 	transition: transform 0.2s ease, box-shadow 0.2s ease;
 	box-sizing: border-box;
   }
 
-  .note:hover {
+  .shared-link-item:hover {
 	box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
   }
 
-  .notes-list {
-	margin-top: 1rem;
-  }
-
-  .note-header {
+  .shared-link-header {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	margin-bottom: .5rem;
-	padding-bottom: 0rem;
+	margin-bottom: 0.5rem;
   }
 
-  .note-meta {
+  .shared-link-title {
+	font-size: 1.1rem;
+	font-weight: 500;
+	color: var(--text-color);
+  }
+
+  .shared-link-meta {
 	font-size: 0.8rem;
 	color: var(--text-secondary);
+	margin-bottom: 0.5rem;
   }
 
-  .note-content {
-	white-space: pre-wrap;
-	word-wrap: break-word;
-	font-size: 1rem;
-	margin-bottom: 1rem;
-  }
-
-  .note-content a {
+  .shared-link-url {
+	font-size: 0.9rem;
 	color: var(--primary-color);
 	text-decoration: none;
-	border-bottom: 1px solid transparent;
-	transition: border-color 0.2s;
 	word-break: break-all;
   }
 
-  .note-content a:hover {
-	border-bottom-color: var(--primary-color);
+  .shared-link-url:hover {
+	text-decoration: underline;
   }
 
-  .note-content pre {
-	padding: 0.5rem;
-	border-radius: 6px;
-	overflow-x: auto;
-	background-color: rgba(0,0,0,0.05);
-	font-size: 0.8rem;
-	margin: 0.5rem 0;
-  }
-
-  html[data-theme='dark'] .note-content pre {
-	background-color: rgba(0,0,0,0.2);
-  }
-
-  .note-content pre code {
-	background: none;
-	padding: 0;
-  }
-
-  .note-content table {
-	width: 100%;
-	border-collapse: collapse;
-	margin: 0.5em 0;
-	border: 1px solid var(--border-color);
-  }
-
-  .note-content th, .note-content td {
-	padding: 5px 8px;
-	border: 1px solid var(--border-color);
-	text-align: left;
-  }
-
-  .note-content thead th {
-	background-color: rgba(0,0,0,0.05);
-  }
-
-  /* Attachments styles */
-  .attachments-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-	gap: 1rem;
-	margin-top: 0.5rem;
-	padding: 0.75rem;
-  }
-
-  .attachment-img {
-	position: relative;
-  }
-
-  .attachment-img img {
-	max-width: 100%;
-	display: block;
-	transition: transform 0.3s ease;
-	border-radius: var(--border-radius-base);
-  }
-
-  .attachment-link {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	background-color: #f7fafc;
-	padding: 0.25rem 0.75rem;
-	border-radius: var(--border-radius-base);
-	color: var(--text-color);
-	text-decoration: none;
-	font-size: 1rem;
-	transition: background-color 0.2s;
-	border: 1px solid var(--border-color);
-  }
-
-  .attachment-link:hover {
-	background-color: #edf2f7;
-  }
-
-  .attachment-link .file-name {
-	word-break: break-all;
-	font-weight: 500;
-  }
-
-  .attachment-link .file-size {
-	color: var(--text-secondary);
-	font-size: 0.8rem;
-  }
-
-  body[data-theme='dark'] .attachment-link {
-	background-color: #4a5568;
-	color: #e2e8f0;
-	border-color: #718096;
-  }
-
-  body[data-theme='dark'] .attachment-link:hover {
-	background-color: #2d3748;
-  }
-
-  /* Share indicator styles */
-  .note-share-indicator {
+  .share-indicator {
 	font-size: 0.75rem;
 	color: var(--primary-color);
 	font-weight: 500;
@@ -292,28 +195,12 @@
 	padding: 4rem 0;
 	color: var(--text-secondary);
   }
-
-  /* Debug info styles */
-  pre {
-	background-color: #f0f0f0;
-	padding: 1rem;
-	border-radius: 6px;
-	overflow: auto;
-	max-height: 300px;
-	text-align: left;
-	font-size: 0.8rem;
-  }
-
-  html[data-theme='dark'] pre {
-	background-color: rgba(0, 0, 0, 0.2);
-	color: var(--text-color);
-  }
 </style>
 <body>
 
 <div class="wrapper">
 	<header>
-		<h3><a href='https://github.com/souvenp/memos-worker' target="_blank">MEMOS</a> - Shared Notes</h3>
+		<h3><a href='https://github.com/souvenp/memos-worker' target="_blank">MEMOS</a> - Shared Notes Links</h3>
 		<button type='button' id='theme-toggle-btn' class='icon-btn' title='Toggle Theme'></button>
 	</header>
 	<main id="main-content">
@@ -375,92 +262,50 @@
 		return result.trim();
 	};
 
-	const formatBytes = (b, d = 2) => {
-		if (!b || b === 0) return '0 Bytes';
-		const k = 1024, s = ['B', 'KB', 'MB', 'GB'];
-		const i = Math.floor(Math.log(b) / Math.log(k));
-		return parseFloat((b / Math.pow(k, i)).toFixed(d)) + ' ' + s[i];
-	};
-
-	const textFileExtensions = ['txt', 'js', 'json', 'py', 'css', 'html', 'md', 'sh', 'java', 'c', 'cpp', 'go', 'rb', 'xml', 'log', 'yaml', 'toml', 'yml'];
-
-	// 配置 Marked.js
-	marked.setOptions({
-		breaks: true,
-		gfm: true,
-		headerIds: false,
-		mangle: false
-	});
-
-	function renderNote(note) {
-		const noteElement = document.createElement('div');
-		noteElement.className = 'note';
-		noteElement.dataset.publicId = note.shareInfo.publicId;
+	function renderSharedLink(note) {
+		const linkElement = document.createElement('div');
+		linkElement.className = 'shared-link-item';
+		linkElement.dataset.publicId = note.shareInfo.publicId;
 
 		const time = formatTimestamp(note.updatedAt);
+		const shareUrl = `${window.location.origin}/share/${note.shareInfo.publicId}`;
 
 		// 添加分享剩余时间显示
 		let shareInfoHtml = '';
 		if (note.shareInfo && note.shareInfo.isShared) {
 			if (note.shareInfo.remainingSeconds > 0) {
 				const remainingTime = formatRemainingTime(note.shareInfo.remainingSeconds);
-				shareInfoHtml = ` ·&nbsp;<span class="note-share-indicator" title="Shared link expires in ${remainingTime}">${remainingTime}</span>`;
+				shareInfoHtml = ` ·&nbsp;<span class="share-indicator" title="Shared link expires in ${remainingTime}">${remainingTime}</span>`;
 			} else {
-				shareInfoHtml = ` ·&nbsp;<span class="note-share-indicator" title="Shared link never expires">Shared</span>`;
+				shareInfoHtml = ` ·&nbsp;<span class="share-indicator" title="Shared link never expires">Shared</span>`;
 			}
 		}
 
-		let attachmentsHTML = '';
-		const files = note.files || [];
-		if (files.length > 0) {
-			attachmentsHTML += '<div class="attachments-grid">';
-			files.forEach(file => {
-				// 后端现在会返回一个完整的、可直接使用的 public_url
-				if (file.public_url) {
-					if (file.type?.startsWith('image/')) {
-						// 对于图片，使用图片格式展示
-						attachmentsHTML += `<div class="attachment-img">
-							<img class="note-image-attachment" loading="lazy" src="${file.public_url}" alt="${file.name}" style="cursor: zoom-in;">
-						</div>`;
-					} else {
-						// 对于普通文件，使用文件链接格式展示
-						attachmentsHTML += `<a href="${file.public_url}" class="attachment-link" download="${file.name}">
-							<span class="file-name">${file.name}</span>
-							<span class="file-size">${formatBytes(file.size)}</span>
-						</a>`;
-					}
-				}
-			});
-			attachmentsHTML += '</div>';
-		}
+		// 提取内容中的第一行作为标题
+		const title = note.content.split('\n')[0].replace(/^#+/, '').trim() || 'Untitled Note';
 
-		// 直接使用完整内容，不做摘要限制，与index.html保持一致
-		const content = note.content;
-
-		// 使用与 index.html 相同的 HTML 结构
-		noteElement.innerHTML = `
-			<div class="note-header">
-				<div class="note-meta">
-					<span title="${new Date(note.updatedAt).toISOString()}">${time}</span>
-					${shareInfoHtml}
-				</div>
-				<div class="note-actions view-mode">
-					<!-- 可以添加额外的操作按钮 -->
-				</div>
+		linkElement.innerHTML = `
+			<div class="shared-link-header">
+				<div class="shared-link-title">${title}</div>
 			</div>
-			<div class="note-content">${marked.parse(content)}</div>
-			${attachmentsHTML}
+			<div class="shared-link-meta">
+				<span title="${new Date(note.updatedAt).toISOString()}">${time}</span>
+				${shareInfoHtml}
+			</div>
+			<div class="shared-link-url-container">
+				<a href="${shareUrl}" class="shared-link-url" target="_blank">${shareUrl}</a>
+			</div>
 		`;
 
 		// 添加点击事件，跳转到完整的分享页面
-		noteElement.addEventListener('click', () => {
-			window.location.href = `/share/${note.shareInfo.publicId}`;
+		linkElement.addEventListener('click', () => {
+			window.open(shareUrl, '_blank');
 		});
 
-		return noteElement;
+		return linkElement;
 	}
 
-	async function loadSharedNotes() {
+	async function loadSharedLinks() {
 		try {
 			const apiUrl = '/api/public/shared-notes';
 			const response = await fetch(apiUrl);
@@ -483,24 +328,24 @@
 				return;
 			}
 
-			const notesList = document.createElement('div');
-			notesList.className = 'notes-list';
+			const linksList = document.createElement('div');
+			linksList.className = 'shared-links-list';
 
 			notes.forEach((note) => {
-				const noteElement = renderNote(note);
-				notesList.appendChild(noteElement);
+				const linkElement = renderSharedLink(note);
+				linksList.appendChild(linkElement);
 			});
 
-			mainContent.appendChild(notesList);
+			mainContent.appendChild(linksList);
 
 		} catch (error) {
-			console.error('Load Shared Notes Error:', error);
+			console.error('Load Shared Links Error:', error);
 			loader.innerHTML = `<p style="color: var(--danger-color);">Error: ${error.message}</p>`;
 		}
 	}
 
 	// 页面加载完成后自动加载内容
-	loadSharedNotes();
+	loadSharedLinks();
 </script>
 
 </body>
