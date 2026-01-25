@@ -6521,6 +6521,30 @@
 		return parseFloat((b / Math.pow(k, i)).toFixed(d)) + ' ' + s[i];
 	};
 
+	// 格式化剩余时间为易读格式
+	const formatRemainingTime = (seconds) => {
+		if (seconds <= 0) return 'Expired';
+
+		const days = Math.floor(seconds / (24 * 3600));
+		const hours = Math.floor((seconds % (24 * 3600)) / 3600);
+		const minutes = Math.floor((seconds % 3600) / 60);
+		const secs = Math.floor(seconds % 60);
+
+		let result = '';
+		if (days > 0) {
+			result += `${days}d `;
+		}
+		if (hours > 0 || days > 0) {
+			result += `${hours}h `;
+		}
+		if (minutes > 0 || hours > 0 || days > 0) {
+			result += `${minutes}m `;
+		}
+		result += `${secs}s`;
+
+		return result.trim();
+	};
+
 	let toastTimer;
 	function showToast(message, type = 'success', duration = 3000) {
 		const toast = document.getElementById('toast-notification');
@@ -7407,12 +7431,25 @@
 		// if (appState.isWaterfall) {
 		// 	index = `#${noteCounter++} ・`
 		// }
+
+		// 添加分享剩余时间显示
+		let shareInfoHtml = '';
+		if (note.shareInfo && note.shareInfo.isShared) {
+			if (note.shareInfo.remainingSeconds > 0) {
+				const remainingTime = formatRemainingTime(note.shareInfo.remainingSeconds);
+				shareInfoHtml = ` ·&nbsp;<span class="note-share-indicator" title="Shared link expires in ${remainingTime}" style="color: var(--primary-color); font-weight: 500;">${remainingTime}</span>`;
+			} else {
+				shareInfoHtml = ` ·&nbsp;<span class="note-share-indicator" title="Shared link never expires" style="color: var(--primary-color); font-weight: 500;">Shared</span>`;
+			}
+		}
+
 		noteElement.innerHTML = `
-									<div class='note-header'>
-									<div class='note-meta'> ${index}
-										<span title='${time.absolute}'>${time.relative}</span>
-										${editedIndicatorHtml}
-									</div>
+										<div class='note-header'>
+										<div class='note-meta'> ${index}
+											<span title='${time.absolute}'>${time.relative}</span>
+											${editedIndicatorHtml}
+											${shareInfoHtml}
+										</div>
 											<div class='note-actions view-mode'>
 													${pinnedIconHTML}
 													<button class='edit icon-btn' title='Edit'>
