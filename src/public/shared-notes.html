@@ -372,8 +372,8 @@
 			mainContent.appendChild(notesList);
 
 		} catch (error) {
-			console.error(error);
-			loader.innerHTML = `<p style="color: #e53e3e;">Error: ${error.message}</p>`;
+			console.error('Load Shared Notes Error:', error);
+			loader.innerHTML = `<p style="color: #e53e3e;">Error: ${error.message}</p><p style="font-size: 0.8rem; color: var(--text-secondary);">Please check the console for more details.</p>`;
 		}
 	}
 
