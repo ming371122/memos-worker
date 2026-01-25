@@ -339,37 +339,49 @@ async function handleSearchRequest(request, env) {
 				if (publicId) {
 					// 获取分享链接的过期时间
 				const publicMemoKey = `public_memo:${publicId}`;
-				const { expiration } = await env.NOTES_KV.getWithMetadata(publicMemoKey);
+				const result = await env.NOTES_KV.getWithMetadata(publicMemoKey);
+				const { value, metadata } = result;
 
-				if (expiration) {
-					// 计算剩余过期时间（秒）
+				if (value) {
+					// KV 条目存在，计算剩余过期时间
 					const now = Math.floor(Date.now() / 1000);
-					const expiresAt = expiration;
-					const remainingSeconds = expiresAt - now;
+					const createdTime = metadata?.createdTime || now - 3600;
+					const expirationTtl = metadata?.expirationTtl || 3600;
+					let expiresAt, remainingSeconds;
 
-						// 只有当剩余时间大于0时才添加过期信息
-						if (remainingSeconds > 0) {
-							note.shareInfo = {
-								isShared: true,
-								publicId: publicId,
-								expiresAt: expiresAt,
-								remainingSeconds: remainingSeconds
-							};
-						} else {
-							// 过期了，可能需要清理KV
-							note.shareInfo = {
-								isShared: false
-							};
-						}
-					} else {
+					if (expirationTtl === 0) {
 						// 永不过期
+						expiresAt = 0;
+						remainingSeconds = 0;
+					} else {
+						// 有过期时间
+						expiresAt = createdTime + expirationTtl;
+						remainingSeconds = expiresAt - now;
+					}
+
+					// 检查分享链接是否已经过期
+					if (expirationTtl > 0 && remainingSeconds <= 0) {
+						// 分享链接已经过期，清理 note_share 关联
+						await env.NOTES_KV.delete(`note_share:${note.id}`);
+						note.shareInfo = {
+							isShared: false
+						};
+					} else {
+						// 设置分享信息
 						note.shareInfo = {
 							isShared: true,
 							publicId: publicId,
-							expiresAt: 0,
-							remainingSeconds: 0
+							expiresAt: expiresAt,
+							remainingSeconds: remainingSeconds
 						};
 					}
+				} else {
+					// KV 条目不存在，可能已过期，清理 note_share 关联
+					await env.NOTES_KV.delete(`note_share:${note.id}`);
+					note.shareInfo = {
+						isShared: false
+					};
+				}
 				} else {
 					note.shareInfo = {
 						isShared: false
@@ -602,37 +614,49 @@ async function handleNotesList(request, env) {
 				if (publicId) {
 					// 获取分享链接的过期时间
 				const publicMemoKey = `public_memo:${publicId}`;
-				const { expiration } = await env.NOTES_KV.getWithMetadata(publicMemoKey);
+				const result = await env.NOTES_KV.getWithMetadata(publicMemoKey);
+				const { value, metadata } = result;
 
-				if (expiration) {
-					// 计算剩余过期时间（秒）
+				if (value) {
+					// KV 条目存在，计算剩余过期时间
 					const now = Math.floor(Date.now() / 1000);
-					const expiresAt = expiration;
-					const remainingSeconds = expiresAt - now;
+					const createdTime = metadata?.createdTime || now - 3600;
+					const expirationTtl = metadata?.expirationTtl || 3600;
+					let expiresAt, remainingSeconds;
 
-						// 只有当剩余时间大于0时才添加过期信息
-						if (remainingSeconds > 0) {
-							note.shareInfo = {
-								isShared: true,
-								publicId: publicId,
-								expiresAt: expiresAt,
-								remainingSeconds: remainingSeconds
-							};
-						} else {
-							// 过期了，可能需要清理KV
-							note.shareInfo = {
-								isShared: false
-							};
-						}
-					} else {
+					if (expirationTtl === 0) {
 						// 永不过期
+						expiresAt = 0;
+						remainingSeconds = 0;
+					} else {
+						// 有过期时间
+						expiresAt = createdTime + expirationTtl;
+						remainingSeconds = expiresAt - now;
+					}
+
+					// 检查分享链接是否已经过期
+					if (expirationTtl > 0 && remainingSeconds <= 0) {
+						// 分享链接已经过期，清理 note_share 关联
+						await env.NOTES_KV.delete(`note_share:${note.id}`);
+						note.shareInfo = {
+							isShared: false
+						};
+					} else {
+						// 设置分享信息
 						note.shareInfo = {
 							isShared: true,
 							publicId: publicId,
-							expiresAt: 0,
-							remainingSeconds: 0
+							expiresAt: expiresAt,
+							remainingSeconds: remainingSeconds
 						};
 					}
+				} else {
+					// KV 条目不存在，可能已过期，清理 note_share 关联
+					await env.NOTES_KV.delete(`note_share:${note.id}`);
+					note.shareInfo = {
+						isShared: false
+					};
+				}
 				} else {
 					note.shareInfo = {
 						isShared: false
@@ -807,38 +831,50 @@ async function handleNoteDetail(request, noteId, env) {
 			const publicId = await env.NOTES_KV.get(`note_share:${id}`);
 			if (publicId) {
 				// 获取分享链接的过期时间
-				const publicMemoKey = `public_memo:${publicId}`;
-				const { metadata, expiration } = await env.NOTES_KV.getWithMetadata(publicMemoKey);
+			const publicMemoKey = `public_memo:${publicId}`;
+			const result = await env.NOTES_KV.getWithMetadata(publicMemoKey);
+			const { value, metadata } = result;
 
-				if (expiration) {
-					// 计算剩余过期时间（秒）
-					const now = Math.floor(Date.now() / 1000);
-					const expiresAt = expiration;
-					const remainingSeconds = expiresAt - now;
+			if (value) {
+				// KV 条目存在，计算剩余过期时间
+				const now = Math.floor(Date.now() / 1000);
+				const createdTime = metadata?.createdTime || now - 3600;
+				const expirationTtl = metadata?.expirationTtl || 3600;
+				let expiresAt, remainingSeconds;
 
-					// 只有当剩余时间大于0时才添加过期信息
-					if (remainingSeconds > 0) {
-						updatedNote.shareInfo = {
-							isShared: true,
-							publicId: publicId,
-							expiresAt: expiresAt,
-							remainingSeconds: remainingSeconds
-						};
-					} else {
-						// 过期了，可能需要清理KV
-						updatedNote.shareInfo = {
-							isShared: false
-						};
-					}
-				} else {
+				if (expirationTtl === 0) {
 					// 永不过期
+					expiresAt = 0;
+					remainingSeconds = 0;
+				} else {
+					// 有过期时间
+					expiresAt = createdTime + expirationTtl;
+					remainingSeconds = expiresAt - now;
+				}
+
+				// 检查分享链接是否已经过期
+				if (expirationTtl > 0 && remainingSeconds <= 0) {
+					// 分享链接已经过期，清理 note_share 关联
+					await env.NOTES_KV.delete(`note_share:${id}`);
+					updatedNote.shareInfo = {
+						isShared: false
+					};
+				} else {
+					// 设置分享信息
 					updatedNote.shareInfo = {
 						isShared: true,
 						publicId: publicId,
-						expiresAt: 0,
-						remainingSeconds: 0
+						expiresAt: expiresAt,
+						remainingSeconds: remainingSeconds
 					};
 				}
+			} else {
+				// KV 条目不存在，可能已过期，清理 note_share 关联
+				await env.NOTES_KV.delete(`note_share:${id}`);
+				updatedNote.shareInfo = {
+					isShared: false
+				};
+			}
 			} else {
 				updatedNote.shareInfo = {
 					isShared: false
@@ -1903,10 +1939,15 @@ async function handleShareNoteRequest(noteId, request, env) {
 			const metadata = {};
 			if (body.expirationTtl > 0) {
 				options.expirationTtl = body.expirationTtl;
-				// 计算并设置绝对过期时间戳到 metadata 中
-				metadata.expiration = Math.floor(Date.now() / 1000) + body.expirationTtl;
-				options.metadata = metadata;
+				// 设置 metadata 以便后续查询
+				metadata.createdTime = Math.floor(Date.now() / 1000);
+				metadata.expirationTtl = body.expirationTtl;
+			} else {
+				// 永不过期，设置 expirationTtl 为 0
+				metadata.createdTime = Math.floor(Date.now() / 1000);
+				metadata.expirationTtl = 0;
 			}
+			options.metadata = metadata;
 			// 如果 expirationTtl <= 0，则不设置 options.expirationTtl，KV 会将其视为永不过期
 
 			// 使用新 TTL 重新写入 public_memo 键，note_share 键保持永不过期
@@ -1938,10 +1979,15 @@ async function handleShareNoteRequest(noteId, request, env) {
 			const metadata = {};
 			if (expirationTtl > 0) {
 				options.expirationTtl = expirationTtl;
-				// 计算并设置绝对过期时间戳到 metadata 中
-				metadata.expiration = Math.floor(Date.now() / 1000) + expirationTtl;
-				options.metadata = metadata;
+				// 设置 metadata 以便后续查询
+				metadata.createdTime = Math.floor(Date.now() / 1000);
+				metadata.expirationTtl = expirationTtl;
+			} else {
+				// 永不过期，设置 expirationTtl 为 0
+				metadata.createdTime = Math.floor(Date.now() / 1000);
+				metadata.expirationTtl = 0;
 			}
+			options.metadata = metadata;
 
 			await Promise.all([
 			env.NOTES_KV.put(`public_memo:${publicId}`, JSON.stringify({ noteId: parseInt(noteId, 10) }), options),
