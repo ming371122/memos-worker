@@ -338,14 +338,14 @@ async function handleSearchRequest(request, env) {
 				const publicId = await env.NOTES_KV.get(`note_share:${note.id}`);
 				if (publicId) {
 					// 获取分享链接的过期时间
-					const publicMemoKey = `public_memo:${publicId}`;
-					const { metadata } = await env.NOTES_KV.getWithMetadata(publicMemoKey);
+				const publicMemoKey = `public_memo:${publicId}`;
+				const { expiration } = await env.NOTES_KV.getWithMetadata(publicMemoKey);
 
-					if (metadata && metadata.expiration) {
-						// 计算剩余过期时间（秒）
-						const now = Math.floor(Date.now() / 1000);
-						const expiresAt = metadata.expiration;
-						const remainingSeconds = expiresAt - now;
+				if (expiration) {
+					// 计算剩余过期时间（秒）
+					const now = Math.floor(Date.now() / 1000);
+					const expiresAt = expiration;
+					const remainingSeconds = expiresAt - now;
 
 						// 只有当剩余时间大于0时才添加过期信息
 						if (remainingSeconds > 0) {
@@ -601,14 +601,14 @@ async function handleNotesList(request, env) {
 				const publicId = await env.NOTES_KV.get(`note_share:${note.id}`);
 				if (publicId) {
 					// 获取分享链接的过期时间
-					const publicMemoKey = `public_memo:${publicId}`;
-					const { metadata } = await env.NOTES_KV.getWithMetadata(publicMemoKey);
+				const publicMemoKey = `public_memo:${publicId}`;
+				const { expiration } = await env.NOTES_KV.getWithMetadata(publicMemoKey);
 
-					if (metadata && metadata.expiration) {
-						// 计算剩余过期时间（秒）
-						const now = Math.floor(Date.now() / 1000);
-						const expiresAt = metadata.expiration;
-						const remainingSeconds = expiresAt - now;
+				if (expiration) {
+					// 计算剩余过期时间（秒）
+					const now = Math.floor(Date.now() / 1000);
+					const expiresAt = expiration;
+					const remainingSeconds = expiresAt - now;
 
 						// 只有当剩余时间大于0时才添加过期信息
 						if (remainingSeconds > 0) {
@@ -808,12 +808,12 @@ async function handleNoteDetail(request, noteId, env) {
 			if (publicId) {
 				// 获取分享链接的过期时间
 				const publicMemoKey = `public_memo:${publicId}`;
-				const { metadata } = await env.NOTES_KV.getWithMetadata(publicMemoKey);
+				const { metadata, expiration } = await env.NOTES_KV.getWithMetadata(publicMemoKey);
 
-				if (metadata && metadata.expiration) {
+				if (expiration) {
 					// 计算剩余过期时间（秒）
 					const now = Math.floor(Date.now() / 1000);
-					const expiresAt = metadata.expiration;
+					const expiresAt = expiration;
 					const remainingSeconds = expiresAt - now;
 
 					// 只有当剩余时间大于0时才添加过期信息
@@ -1900,8 +1900,12 @@ async function handleShareNoteRequest(noteId, request, env) {
 			}
 
 			const options = {};
+			const metadata = {};
 			if (body.expirationTtl > 0) {
 				options.expirationTtl = body.expirationTtl;
+				// 计算并设置绝对过期时间戳到 metadata 中
+				metadata.expiration = Math.floor(Date.now() / 1000) + body.expirationTtl;
+				options.metadata = metadata;
 			}
 			// 如果 expirationTtl <= 0，则不设置 options.expirationTtl，KV 会将其视为永不过期
 
@@ -1931,14 +1935,18 @@ async function handleShareNoteRequest(noteId, request, env) {
 				// 默认过期时间为 1 小时 (3600 秒)
 				const expirationTtl = (body.expirationTtl !== undefined) ? body.expirationTtl : 3600;
 				const options = {};
-				if (expirationTtl > 0) {
-					options.expirationTtl = expirationTtl;
-				}
+			const metadata = {};
+			if (expirationTtl > 0) {
+				options.expirationTtl = expirationTtl;
+				// 计算并设置绝对过期时间戳到 metadata 中
+				metadata.expiration = Math.floor(Date.now() / 1000) + expirationTtl;
+				options.metadata = metadata;
+			}
 
-				await Promise.all([
-				env.NOTES_KV.put(`public_memo:${publicId}`, JSON.stringify({ noteId: parseInt(noteId, 10) }), options),
-				env.NOTES_KV.put(`note_share:${noteId}`, publicId) // 不设置过期时间，保持永不过期
-			]);
+			await Promise.all([
+			env.NOTES_KV.put(`public_memo:${publicId}`, JSON.stringify({ noteId: parseInt(noteId, 10) }), options),
+			env.NOTES_KV.put(`note_share:${noteId}`, publicId) // 不设置过期时间，保持永不过期
+		]);
 			}
 
 			// 为笔记添加 shared 标签
