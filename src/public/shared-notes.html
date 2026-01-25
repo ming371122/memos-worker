@@ -219,6 +219,11 @@
 			<div class="spinner"></div>
 		</div>
 	</main>
+	
+	<!-- 调试按钮 -->
+	<div style="margin-top: 2rem; text-align: center;">
+		<button id="debug-btn" style="padding: 0.5rem 1rem; background-color: var(--primary-color); color: white; border: none; border-radius: var(--border-radius-base); cursor: pointer;">Show Debug Info</button>
+	</div>
 </div>
 
 <script>
@@ -244,7 +249,12 @@
 	applyTheme(savedTheme);
 
 	function formatTimestamp(timestamp) {
+		console.log('Formatting timestamp:', timestamp);
 		const date = new Date(timestamp);
+		if (isNaN(date.getTime())) {
+			console.error('Invalid timestamp:', timestamp);
+			return 'Invalid date';
+		}
 		return date.toLocaleString(undefined, {
 			year: 'numeric', month: 'short', day: 'numeric',
 			hour: 'numeric', minute: '2-digit'
@@ -277,6 +287,14 @@
 	};
 
 	const textFileExtensions = ['txt', 'js', 'json', 'py', 'css', 'html', 'md', 'sh', 'java', 'c', 'cpp', 'go', 'rb', 'xml', 'log', 'yaml', 'toml', 'yml'];
+
+	// 配置 Marked.js
+	marked.setOptions({
+		breaks: true,
+		gfm: true,
+		headerIds: false,
+		mangle: false
+	});
 
 	function renderNote(note) {
 		const noteElement = document.createElement('div');
@@ -344,13 +362,21 @@
 
 	async function loadSharedNotes() {
 		try {
-			const response = await fetch(`/api/public/shared-notes`);
+			const apiUrl = '/api/public/shared-notes';
+			console.log('Fetching shared notes from:', apiUrl);
+			const response = await fetch(apiUrl);
+			console.log('API Response Status:', response.status, response.statusText);
+			
 			if (!response.ok) {
 				const err = await response.json();
 				throw new Error(err.error || `Failed to load shared notes (status: ${response.status})`);
 			}
+			
 			const data = await response.json();
+			console.log('API Response Data:', data);
 			const notes = data.notes || [];
+			console.log('Parsed Notes:', notes);
+			console.log('Notes count:', notes.length);
 
 			loader.style.display = 'none';
 
@@ -364,12 +390,17 @@
 
 			const notesList = document.createElement('div');
 			notesList.className = 'notes-list';
+			console.log('Creating note elements...');
 
-			notes.forEach(note => {
-				notesList.appendChild(renderNote(note));
+			notes.forEach((note, index) => {
+				console.log(`Rendering note ${index + 1}:`, note.content.substring(0, 50));
+				const noteElement = renderNote(note);
+				notesList.appendChild(noteElement);
 			});
 
+			console.log('Appending notes to main content...');
 			mainContent.appendChild(notesList);
+			console.log('Notes rendered successfully!');
 
 		} catch (error) {
 			console.error('Load Shared Notes Error:', error);
@@ -378,6 +409,29 @@
 	}
 
 	loadSharedNotes();
+	
+	// 调试按钮点击事件
+	const debugBtn = document.getElementById('debug-btn');
+	if (debugBtn) {
+		debugBtn.addEventListener('click', async () => {
+			try {
+				const response = await fetch('/api/public/shared-notes');
+				const data = await response.json();
+				const debugInfo = document.createElement('div');
+				debugInfo.innerHTML = `
+					<pre style="background-color: #f0f0f0; padding: 1rem; border-radius: 6px; overflow: auto; max-height: 300px; text-align: left;">
+						${JSON.stringify(data, null, 2)}
+					</pre>
+				`;
+				mainContent.appendChild(debugInfo);
+			} catch (error) {
+				console.error('Debug Error:', error);
+				const errorInfo = document.createElement('div');
+				errorInfo.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+				mainContent.appendChild(errorInfo);
+			}
+		});
+	}
 </script>
 
 </body>
