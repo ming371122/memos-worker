@@ -1,6 +1,6 @@
 name = "memos-worker"
 compatibility_date = "2025-08-19"
-main = "src/index.js"
+main = "src/shareremove.js"
 [assets]
 directory = "./src/public"
 run_worker_first = [
